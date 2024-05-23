@@ -19,8 +19,10 @@ public class Witch {
     public Witch(SpriteBatch batch) {
         witch = new Texture(Gdx.files.internal("images/witch.png"));
         this.batch = batch;
-        x = new Random().nextInt(Gdx.graphics.getWidth()); // Position initiale
-        y = new Random().nextInt(Gdx.graphics.getHeight()); // Position initiale
+        x = Gdx.graphics.getWidth() / 2 - witch.getWidth() / 2 - 100; // Position initiale au milieu, décalée vers la gauche
+        y = Gdx.graphics.getHeight() / 2 - witch.getHeight() / 2; // Position initiale au centre verticalement
+//        x = new Random().nextInt(Gdx.graphics.getWidth()); // Position initiale
+//        y = new Random().nextInt(Gdx.graphics.getHeight()); // Position initiale
     }
 
     public void draw() {

@@ -10,7 +10,7 @@ public class  DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("Scramble-Wicth");
 		config.setWindowedMode(1000, 530);
-		config.setWindowIcon("images/logo.png", "images/logo.png", "images/logo.png");
+		config.setWindowIcon("images/logo128.png", "images/logo32.png", "images/logo.png");
 		config.useVsync(true);
 		config.setForegroundFPS(60);
 		new Lwjgl3Application(new MyGdxGame(), config);

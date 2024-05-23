@@ -37,6 +37,7 @@ public class Obstacle {
     }
 
     public void draw(SpriteBatch spriteBatch) {
+
         spriteBatch.draw(texture, x, y, size, size);
     }
 

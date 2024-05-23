@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,12 +29,16 @@ public class MainMenuScreen implements Screen {
     // Ajoutez ce membre à votre classe MainMenuScreen
     private ShapeRenderer shapeRenderer;
     private GlyphLayout layout;
+    private Rectangle level1Rect;
+    private Rectangle level2Rect;
+    private Rectangle level3Rect;
+    private Rectangle helpRect;
 
     public MainMenuScreen(MyGdxGame game, Sound soundPause, BitmapFont styleFont) {
         this.game = game;
         this.soundPause = soundPause;
         batch = new SpriteBatch();
-        background = new Texture(Gdx.files.internal("images/acceuil.png"));  // Ajoutez une image de fond pour le menu
+        background = new Texture(Gdx.files.internal("images/font1.jpg"));  // Ajoutez une image de fond pour le menu
 
         this.styleFont = styleFont;
         shapeRenderer = new ShapeRenderer();
@@ -48,6 +53,18 @@ public class MainMenuScreen implements Screen {
         loadMap("ascii_art/new1.txt", map1);
         loadMap("ascii_art/new2.txt", map2);
         loadMap("ascii_art/new3.txt", map3);
+
+        layout.setText(styleFont, "Press 1 for level 1");
+        level1Rect = new Rectangle(400, 200 - layout.height, layout.width, layout.height);
+
+        layout.setText(styleFont, "Press 2 for level 2");
+        level2Rect = new Rectangle(400, 250 - layout.height, layout.width, layout.height);
+
+        layout.setText(styleFont, "Press 3 for level 3");
+        level3Rect = new Rectangle(400, 300 - layout.height, layout.width, layout.height);
+
+        layout.setText(styleFont, "Press 0 for Help");
+        helpRect = new Rectangle(40, 500 - layout.height, layout.width, layout.height);
 
     }
 
@@ -80,35 +97,38 @@ public class MainMenuScreen implements Screen {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         //font.draw(batch, "Scramble", 350, 400);
-        styleFont.draw(batch, "Press 1 for level 1", 400, 200);
-        styleFont.draw(batch, "Press 2 for level 2", 400, 250);
-        styleFont.draw(batch, "Press 3 for level 3", 400, 300);
-        styleFont.draw(batch, "?Help?", 40, 500);
+        styleFont.draw(batch, "Level 1", 450, 200);
+        styleFont.draw(batch, "Level 2", 450, 250);
+        styleFont.draw(batch, "Level 3", 450, 300);
+        styleFont.draw(batch, "click for Help", 40, 500);
 
         batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
 
-        drawTextBorder("Press 1 for level 1", 400, 200);
-        drawTextBorder("Press 2 for level 2", 400, 250);
-        drawTextBorder("Press 3 for level 3", 400, 300);
+        drawTextBorder("Level 1", 450, 200);
+        drawTextBorder("Level 2", 450, 250);
+        drawTextBorder("Level 3", 450, 300);
 
         shapeRenderer.end();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.A)){
+        if (Gdx.input.justTouched()) {
+            int mouseX = Gdx.input.getX();
+            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Inverser la coordonnée Y
 
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            game.setScreen(new GameScreen(game, map1, map2, map3, 1, styleFont)); // Changez vers l'écran de jeu lorsque ENTER est pressé
-            dispose();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            game.setScreen(new GameScreen(game, map1, map2, map3, 2, styleFont)); // Changez vers l'écran de jeu lorsque ENTER est pressé
-            dispose();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            game.setScreen(new GameScreen(game, map1, map2, map3, 3, styleFont)); // Changez vers l'écran de jeu lorsque ENTER est pressé
-            dispose();
+            if (level1Rect.contains(mouseX, mouseY)) {
+                game.setScreen(new GameScreen(game, map1, map2, map3, 1, styleFont));
+                dispose();
+            } else if (level2Rect.contains(mouseX, mouseY)) {
+                game.setScreen(new GameScreen(game, map1, map2, map3, 2, styleFont));
+                dispose();
+            } else if (level3Rect.contains(mouseX, mouseY)) {
+                game.setScreen(new GameScreen(game, map1, map2, map3, 3, styleFont));
+                dispose();
+            } else if (helpRect.contains(mouseX, mouseY)) {
+                game.setScreen(new Help(game, styleFont));
+                dispose();
+            }
         }
     }
 
@@ -121,7 +141,6 @@ public class MainMenuScreen implements Screen {
 
         // Dessiner le rectangle autour du texte
         shapeRenderer.rect(x - 10, y - height - 10, width + 20, height + 20);
-
     }
 
     @Override

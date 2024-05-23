@@ -19,30 +19,29 @@ import java.io.IOException;
 public class Help implements Screen {
     final MyGdxGame game;
     private Texture background;
+    private Texture vie;
+    private Texture monster;
+    private Texture rocket;
+    private Texture direction;
+    private Texture pomme;
+    private Texture bomb;
     private BitmapFont styleFont;
-    public Sound soundPause;
     private SpriteBatch batch;
-    private  Map map1;
-    private  Map map2;
-    private  Map map3;
-    // Ajoutez ce membre à votre classe MainMenuScreen
-    private ShapeRenderer shapeRenderer;
-    private GlyphLayout layout;
+    public Sound soundPause;
 
-    public Help(MyGdxGame game, Sound soundPause, BitmapFont styleFont) {
+    public Help(MyGdxGame game, BitmapFont styleFont) {
         this.game = game;
-        this.soundPause = soundPause;
-        batch = new SpriteBatch();
-        background = new Texture(Gdx.files.internal("images/acceuil.png"));  // Ajoutez une image de fond pour le menu
-
         this.styleFont = styleFont;
-        shapeRenderer = new ShapeRenderer();
-        layout = new GlyphLayout();
-
-
-
+        batch = new SpriteBatch();
+        background = new Texture(Gdx.files.internal("images/images.jpeg")); // Remplacez par votre image de fond
+        vie = new Texture(Gdx.files.internal("images/vie.png"));
+        monster = new Texture(Gdx.files.internal("images/monster.png"));
+        rocket = new Texture(Gdx.files.internal("images/rocket.png"));
+        bomb = new Texture(Gdx.files.internal("images/bomb.png"));
+        direction = new Texture(Gdx.files.internal("images/direction.png"));
+        pomme = new Texture(Gdx.files.internal("images/apple.png"));
+        soundPause = Gdx.audio.newSound(Gdx.files.internal("music/menu.mp3"));
     }
-
 
     @Override
     public void show() {
@@ -57,44 +56,33 @@ public class Help implements Screen {
 
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        //font.draw(batch, "Scramble", 350, 400);
 
-        styleFont.draw(batch, "Retour", 40, 500);
-
+        batch.draw(bomb,150, 80, 120, 150);
+        batch.draw(rocket,100, 300 - 90, 200, 200);
+        batch.draw(monster,700, 300, 200, 100);
+        batch.draw(pomme,700, 80, 90, 90);
+        styleFont.draw(batch, "------> score +1 or ", 340 , 345);
+        styleFont.draw(batch, "------> score +2", 280 , 150);
+        styleFont.draw(batch, "------> ", 280 , 110);
+        batch.draw(vie,518, 320, 45, 45);
+        styleFont.draw(batch, " = 0", 390 , 110);
+        batch.draw(vie,350, 90, 40, 20);
+        styleFont.draw(batch, " -1 <------ ", 570 , 345);
+        styleFont.draw(batch, " +1 <------ ", 590 , 130);
+        batch.draw(vie,552, 115, 40, 20);
+        styleFont.draw(batch, " Movement : ", 450 , 280);
+        batch.draw(direction,436,136,140,150);
+        styleFont.draw(batch, " Press esc to exit", 2 , 20);
         batch.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.WHITE);
-
-        drawTextBorder("Retour", 400, 200);
-
-
-        shapeRenderer.end();
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            game.setScreen(new GameScreen(game, map1, map2, map3, 1, styleFont)); // Changez vers l'écran de jeu lorsque ENTER est pressé
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MainMenuScreen(game, soundPause, styleFont));
             dispose();
         }
-
-    }
-
-    private void drawTextBorder(String text, float x, float y) {
-        // Utiliser GlyphLayout pour mesurer le texte
-        layout.setText(styleFont, text);
-
-        float width = layout.width;
-        float height = layout.height;
-
-        // Dessiner le rectangle autour du texte
-        shapeRenderer.rect(x - 10, y - height - 10, width + 20, height + 20);
-
     }
 
     @Override
     public void resize(int width, int height) {
-        map1.resize(width,height);
-        map2.resize(width,height);
-        map3.resize(width,height);
     }
 
     @Override
@@ -110,6 +98,8 @@ public class Help implements Screen {
         if(soundPause != null)
             soundPause.stop();
     }
+
+
 
     @Override
     public void dispose() {

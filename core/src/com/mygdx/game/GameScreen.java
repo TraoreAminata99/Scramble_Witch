@@ -3,16 +3,20 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import static com.badlogic.gdx.math.MathUtils.random;
+import static com.badlogic.gdx.math.MathUtils.randomBoolean;
 
 public class GameScreen implements Screen {
     MyGdxGame game;
@@ -24,7 +28,7 @@ public class GameScreen implements Screen {
     private Array<Obstacle> obstalceStatic;
     private Array<Apple> apples;
     private OrthographicCamera camera;
-    private Texture background;
+    private Texture vie;
     private SpriteBatch batch;
     private  Map map1;
     private  Map map2;
@@ -43,7 +47,7 @@ public class GameScreen implements Screen {
     private float OBSTACLE_INTERVAL = 1.0f;
     private static final float APPLE_INTERVAL = 5.0f;
     public final Sound soundPause;
-    private final Sound gameSound;
+    private final Music gameSound;
     private final Sound soundBall;
     private final Sound soundMonsterDie;
     private final Sound boom;
@@ -56,6 +60,8 @@ public class GameScreen implements Screen {
     private int level;
     private int live;
     private float deltaTime;
+    GlyphLayout layout = new GlyphLayout();
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public GameScreen(MyGdxGame game, Map map1, Map map2, Map map3, int level, BitmapFont styleFont) {
         this.game = game;
@@ -65,7 +71,7 @@ public class GameScreen implements Screen {
         soundPause = Gdx.audio.newSound(Gdx.files.internal("music/bataille.mp3"));
         soundMonsterDie = Gdx.audio.newSound(Gdx.files.internal("music/diedbyBall.mp3"));
         nextlevel = Gdx.audio.newSound(Gdx.files.internal("music/next_level.mp3"));
-        gameSound = Gdx.audio.newSound(Gdx.files.internal("music/game.mp3"));
+        gameSound = Gdx.audio.newMusic(Gdx.files.internal("music/game.mp3"));
         eat = Gdx.audio.newSound(Gdx.files.internal("music/eat.mp3"));
         menu = Gdx.audio.newSound(Gdx.files.internal("music/menu.mp3"));
         boom = Gdx.audio.newSound(Gdx.files.internal("music/boom.mp3"));
@@ -79,7 +85,7 @@ public class GameScreen implements Screen {
         rockets = new Array<Rocket>();
         obstalceStatic = new Array<>();
         apples = new Array<Apple>();
-        background = new Texture(Gdx.files.internal("images/badlogic.jpg"));
+        vie = new Texture(Gdx.files.internal("images/vie.png"));
         backgroundY = 0;
         camera.setToOrtho(false, 800, 480);
 
@@ -98,6 +104,7 @@ public class GameScreen implements Screen {
     }
 
     public void resetGame() {
+        gameSound.stop();
         if (witch != null) {
             witch.dispose();
         }
@@ -120,7 +127,10 @@ public class GameScreen implements Screen {
         gameOver = false;
         isPaused = false;
         live = 3;
+        level = 1;
+        updateMap();
         soundPause.pause();
+        gameSound.play();
     }
 
     @Override
@@ -147,6 +157,7 @@ public class GameScreen implements Screen {
             return;
         }
         if (isPaused) {
+            gameSound.pause();
             batch.begin();
             styleFont.draw(batch, "Game Paused", Gdx.graphics.getWidth()/2-30, 270);
             styleFont.draw(batch, "Press any key to resume", Gdx.graphics.getWidth()/2-53-30, 220);
@@ -157,6 +168,9 @@ public class GameScreen implements Screen {
                 soundPause.stop();
             }
             return;
+        }
+        if (!gameSound.isPlaying()) {
+            gameSound.play();
         }
 
         // Mettre à jour le temps écoulé
@@ -200,12 +214,16 @@ public class GameScreen implements Screen {
         batch.begin();
         currentMap.render();
         styleFont.draw(game.batch, "Score: " + score, 10, 490);
-        if(live == 1)
+        for (int i = 0; i < live; i++) {
+            batch.draw(vie, 9 + i * (vie.getWidth() + 2), 389);
+        }
+        /*if(live == 1)
             styleFont.draw(game.batch, "Life: " + 0, 10, 470);
         else
-            styleFont.draw(game.batch, "Life: " + live, 10, 470);
+            styleFont.draw(game.batch, "Life: " + live, 10, 470);*/
         styleFont.draw(game.batch, "Level: " + level, 10, 450);
         styleFont.draw(batch, "Press 'P' to pause", 825, 490);
+        //drawTextBorder("pause", 230,156);
         witch.draw();
         witch.update();
         for (Ball ball : balls) {
@@ -251,15 +269,25 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
+    private void drawTextBorder(String text, float x, float y) {
+        // Utiliser GlyphLayout pour mesurer le texte
+        layout.setText(styleFont, text);
+
+        float width = layout.width;
+        float height = layout.height;
+
+        // Dessiner le rectangle autour du texte
+        shapeRenderer.rect(x - 10, y - height - 10, width + 20, height + 20);
+    }
+
     private void addRandomObstacle() {
         float x = random.nextFloat() * Gdx.graphics.getWidth();
         float y = random.nextFloat() * Gdx.graphics.getWidth();; // Position de départ en dehors de l'écran
         float size = 50 + random.nextFloat() * 50; // Taille aléatoire entre 50 et 100
 
         // Choisir aléatoirement un type d'obstacle
-        int type = random.nextInt(2);
         Obstacle obstacle;
-        if (type == 0) {
+        if (randomBoolean()) {
             obstacle = new Bomb(x, y, size);
         } else {
             obstacle = new Monster(x, y, size);
@@ -336,7 +364,7 @@ public class GameScreen implements Screen {
                     soundMonsterDie.play(1f);
                     if(obstacle instanceof Bomb) {
                         boom.play();
-                        score += 2;
+                        score += 3;
                     }
                     else
                         score++;
@@ -406,7 +434,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         if(gameSound != null)
-            gameSound.play(1);
+            gameSound.play();
     }
 
     @Override
@@ -438,5 +466,6 @@ public class GameScreen implements Screen {
         for (Apple apple : apples) {
             apple.dispose();
         }
+        gameSound.dispose();
     }
 }
