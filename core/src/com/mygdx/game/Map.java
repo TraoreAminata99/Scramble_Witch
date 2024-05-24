@@ -112,7 +112,7 @@ public class Map {
         starTexture.dispose();
     }
 
-    // Ajoutez cette méthode à votre classe Map
+    //
     public Array<Rectangle> getCollisionRectangles() {
         Array<Rectangle> collisionRectangles = new Array<>();
 
